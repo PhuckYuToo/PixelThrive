@@ -2,6 +2,7 @@ package com.base.pixelthrive.guis;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.newdawn.slick.Color;
 
@@ -9,6 +10,7 @@ import com.base.engine.Button;
 import com.base.engine.Font;
 import com.base.engine.Input;
 import com.base.engine.Render;
+import com.base.engine.Util;
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
 import com.base.pixelthrive.GUI;
@@ -26,10 +28,21 @@ public class MainMenu extends GUI
 	private Button exit = new Button(Window.getAbsoluteCenter(buttonSize), buttonSize, 1);
 
 	private ArrayList<Button> mainMenuButtons = new ArrayList<Button>();
+	private CopyOnWriteArrayList<Splash> splash = new CopyOnWriteArrayList<Splash>();
 
 	private int buttSpace = 20;
 
 	private Color[][] pix = new Color[Window.getWidth() / 16 + 1][Window.getHeight() / 16 + 1];
+
+	private final String[] splashes = {"Now available in North Korea!", "Thanks to DarkKnight!", "Thanks to PhuckYuToo", 
+			"Thanks to Ca$h!", "OMG THIS GAME HAS SQUARES, MINECRAFT RIPOFF!", "GG!", 
+			"Powered by 9 volt batteries!", "ARMIIIIIN!!!", "Don't let the old man get to you!",
+			"PhuckYu? PhuckYuToo!", "'68, into the world born!", "We're taking over this town!",
+			"Don't let the rain kill you!", "Are you talking to me?", "Sascha is a fatass!",
+			"OH NO! IT'S AN ABNORMAL!", "Now reloaded with .42 caliber bullets!", 
+			"It costs 90000 dollars to play this for 2 seconds!", "Microtransactions suck!",
+			"You're a wizard, Jerry!", "Ya can't see California without MB's eyes!",
+			"See who gives a phuck!", "Is this real life?", "Now with the dark side!"};
 
 	public MainMenu()
 	{
@@ -43,7 +56,6 @@ public class MainMenu extends GUI
 		mainMenuButtons.add(options);
 		mainMenuButtons.add(exit);
 		for(int i = 0; i < mainMenuButtons.size(); i++) mainMenuButtons.get(i).setPos(Window.getAbsoluteCenter(buttonSize).add(0, (buttSpace * mainMenuButtons.size()) - ((buttonSize.getY() + buttSpace) * (mainMenuButtons.size() - 1 - i))));
-
 		for(int x = 0; x < pix.length; x++)
 			for(int y = 0; y < pix[0].length; y++)
 			{
@@ -61,8 +73,15 @@ public class MainMenu extends GUI
 		if(active)
 		{
 			for(Button button : mainMenuButtons) button.update(delta);
+			for(int i = 0; i < getSplashes().size(); i++)
+			{
+				if(getSplashes().get(i).isOut) getSplashes().remove(i);
+				getSplashes().get(i).update(delta);
+			}
 			notAvailable.update(delta);
 			notAvailable.setPos(Input.getFixedMousePosition().add(6));
+
+			if(new Random().nextInt(100) == 0) getSplashes().add(new Splash(new Random().nextInt(Window.getHeight()), splashes[new Random().nextInt(splashes.length)], new Random().nextInt(40) + 20));
 		}
 	}
 
@@ -71,6 +90,7 @@ public class MainMenu extends GUI
 		if(active)
 		{
 			for(Button button : mainMenuButtons) button.input(delta);
+			if(exit.isClicked()) System.exit(0);
 			notAvailable.input(delta);
 		}
 	}
@@ -80,20 +100,50 @@ public class MainMenu extends GUI
 		if(active)
 		{
 			Render.pushMatrix();
-
-			//			Render.drawRectangle(Vector2f.ZERO, Window.getSize(), new Color(60, 180, 220)); //background
-			for(int x = 0; x < pix.length; x++)
-				for(int y = 0; y < pix[0].length; y++)
-				{
-					Render.drawRectangle(new Vector2f(x, y).mul(16), new Vector2f(16), pix[x][y]);
-				}
-
-
-			Render.drawCenteredStringFixedY(Vector2f.ZERO, new Vector2f(Window.getSize().getX(), 40), PTGame.TITLE, new Color(0xffffff), title, new Vector2f(3)); //title
-			Render.drawString(Window.getSize().sub(Render.getStringSize(PTGame.VERSION, version)), PTGame.VERSION, new Color(0xffffff), version, new Vector2f(3)); //version text
+			for(int x = 0; x < pix.length; x++) for(int y = 0; y < pix[0].length; y++) Render.drawRectangle(new Vector2f(x, y).mul(16), new Vector2f(16), pix[x][y]);
+			for(Splash spl : getSplashes()) spl.render();
+			Render.drawCenteredStringFixedY(Vector2f.ZERO, new Vector2f(Window.getSize().getX(), 40), PTGame.TITLE, new Color(0xffffff), title, new Vector2f(3));
+			Render.drawString(Window.getSize().sub(Render.getStringSize(PTGame.VERSION, version)), PTGame.VERSION, new Color(0xffffff), version, new Vector2f(3));
 			for(Button button : mainMenuButtons) button.render(Vector2f.ZERO);
 			if(multiPlayer.isHover() && !multiPlayer.isEnabled()) notAvailable.render();
 			Render.popMatrix();
+		}
+	}
+	
+	public synchronized CopyOnWriteArrayList<Splash> getSplashes()
+	{
+		return splash;
+	}
+
+	public class Splash
+	{
+		private String splash;
+		private Font font;
+		private Color col;
+		private Vector2f pos;
+		public boolean isOut = false;
+		private float moveSpeed = new Random().nextFloat() + 1.2f;
+
+		public Splash(int y, String txt, float scale)
+		{
+			splash = txt;
+			font = Render.getFont(scale);
+			int r = new Random().nextInt(215) + 40;
+			int g = new Random().nextInt(215) + 40;
+			int b = new Random().nextInt(215) + 40;
+			col = new Color(r, g, b);
+			pos = new Vector2f(Window.getWidth() + 2, y);
+		}
+
+		public void update(float delta)
+		{
+			if(pos.getX() > -Render.getStringSize(splash, font).getX()) pos = pos.sub(moveSpeed, 0);
+			else isOut = true;
+		}
+
+		public void render()
+		{
+			Render.drawString(pos, splash, col, font, new Vector2f(2));
 		}
 	}
 }

@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL11.*;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 
+import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 @SuppressWarnings("deprecation")
@@ -135,6 +136,13 @@ public class Render
 		glVertex2f(size.getX() + x, y);
 		glEnd();
 	}
+	
+	public static void rotate(Vector2f center, float angle)
+	{
+		glTranslatef(center.getX(), center.getY(), 0);
+		glRotatef(angle, 0f, 0f, 1f);
+		glTranslatef(-(center.getX()), -(center.getY()), -0);
+	}
 
 	public static void drawRotatedRectangle(Vector2f pos, Vector2f size, int red, int green, int blue, float angle, float rX, float rY, float rZ)
 	{
@@ -212,17 +220,6 @@ public class Render
 		glTexCoord2f(1, 0); // top right
 		glVertex2f(size.getX() + x, y);
 		glEnd();
-	}
-	
-	public static void rotate(Vector2f pos, Vector2f size, float angle, float rX, float rY, float rZ)
-	{
-		float x = pos.getX();
-		float y = pos.getY();
-		float sizeX = size.getX();
-		float sizeY = size.getY();
-		glTranslatef(x + sizeX / 2, y + sizeY / 2, 0);
-		glRotatef(angle, rX, rY, rZ);
-		glTranslatef(-(x + sizeX / 2), -(y + sizeY / 2), -0);
 	}
 	
 	public static void loadIdentity()
@@ -409,5 +406,19 @@ public class Render
 		drawRectangle(pos.add(size.div(4).getX(), 10), size.sub(size.div(2).getX(), 10), r, g, b);
 		drawTriangle(pos.sub(0, size.div(2).getY() - 10), size.sub(0, size.div(2).getY()), r, g, b, 0, 0, 0, 1);
 		popMatrix();
+	}
+
+	public static void scale(Vector2f center, float x, float y)
+	{
+		glTranslatef(center.getX(), center.getY(), 0);
+		glScalef(x, y, 1f);
+		glTranslatef(-(center.getX()), -(center.getY()), -0);
+	}
+	
+	public static void scale(Vector2f center, float scale)
+	{
+		glTranslatef(center.getX(), center.getY(), 0);
+		glScalef(scale, scale, 1f);
+		glTranslatef(-(center.getX()), -(center.getY()), -0);
 	}
 }
