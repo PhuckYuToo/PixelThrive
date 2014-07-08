@@ -10,7 +10,6 @@ import com.base.engine.Button;
 import com.base.engine.Font;
 import com.base.engine.Input;
 import com.base.engine.Render;
-import com.base.engine.Util;
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
 import com.base.pixelthrive.GUI;
@@ -34,6 +33,8 @@ public class MainMenu extends GUI
 
 	private Color[][] pix = new Color[Window.getWidth() / 16 + 1][Window.getHeight() / 16 + 1];
 
+	private float titleScale = 0f, titleSpeed = 1f;
+	
 	private final String[] splashes = {"Now available in North Korea!", "Thanks to DarkKnight!", "Thanks to PhuckYuToo", 
 			"Thanks to Ca$h!", "OMG THIS GAME HAS SQUARES, MINECRAFT RIPOFF!", "GG!", 
 			"Powered by 9 volt batteries!", "ARMIIIIIN!!!", "Don't let the old man get to you!",
@@ -42,7 +43,11 @@ public class MainMenu extends GUI
 			"OH NO! IT'S AN ABNORMAL!", "Now reloaded with .42 caliber bullets!", 
 			"It costs 90000 dollars to play this for 2 seconds!", "Microtransactions suck!",
 			"You're a wizard, Jerry!", "Ya can't see California without MB's eyes!",
-			"See who gives a phuck!", "Is this real life?", "Now with the dark side!"};
+			"See who gives a phuck!", "Is this real life?", "Now with the dark side!",
+			"It's time to RISE!", "War is not the answer!", "Enter the carnival of souls!",
+			"What in the heaven?", "Less content. More goat.", "Master!", "Disorder, disorder!",
+			"1v1 me rust get rekt son", "MIKASAAAA!!!", "Everyone is a world before they are a man!",
+			"Now gluten free!", "Diabeetus sucks", "Fat plumbers sold seperately!"};
 
 	public MainMenu()
 	{
@@ -66,22 +71,30 @@ public class MainMenu extends GUI
 					else pix[x][y] = pix[x][y].brighter(0.15f);
 				}
 			}
+		for(int i = 0; i < 2; i++) spawnSplash();
 	}
 
 	public void update(float delta)
 	{
 		if(active)
 		{
+			titleSpeed -= 0.01f;
+			if(titleSpeed > 0f) titleScale = 1f - titleSpeed;
+			
 			for(Button button : mainMenuButtons) button.update(delta);
 			for(int i = 0; i < getSplashes().size(); i++)
 			{
-				if(getSplashes().get(i).isOut) getSplashes().remove(i);
+				if(getSplashes().get(i).isOut)
+				{
+					getSplashes().remove(i);
+					continue;
+				}
 				getSplashes().get(i).update(delta);
 			}
 			notAvailable.update(delta);
 			notAvailable.setPos(Input.getFixedMousePosition().add(6));
 
-			if(new Random().nextInt(100) == 0) getSplashes().add(new Splash(new Random().nextInt(Window.getHeight()), splashes[new Random().nextInt(splashes.length)], new Random().nextInt(40) + 20));
+			if(new Random().nextInt(100) == 0 && getSplashes().size() < 8) spawnSplash();
 		}
 	}
 
@@ -102,7 +115,10 @@ public class MainMenu extends GUI
 			Render.pushMatrix();
 			for(int x = 0; x < pix.length; x++) for(int y = 0; y < pix[0].length; y++) Render.drawRectangle(new Vector2f(x, y).mul(16), new Vector2f(16), pix[x][y]);
 			for(Splash spl : getSplashes()) spl.render();
+			Render.pushMatrix();
+			Render.scale(new Vector2f(Window.getSize().getX(), 40).div(2), titleScale);
 			Render.drawCenteredStringFixedY(Vector2f.ZERO, new Vector2f(Window.getSize().getX(), 40), PTGame.TITLE, new Color(0xffffff), title, new Vector2f(3));
+			Render.popMatrix();
 			Render.drawString(Window.getSize().sub(Render.getStringSize(PTGame.VERSION, version)), PTGame.VERSION, new Color(0xffffff), version, new Vector2f(3));
 			for(Button button : mainMenuButtons) button.render(Vector2f.ZERO);
 			if(multiPlayer.isHover() && !multiPlayer.isEnabled()) notAvailable.render();
@@ -110,6 +126,13 @@ public class MainMenu extends GUI
 		}
 	}
 	
+	private void spawnSplash()
+	{
+		int y = new Random().nextInt(Window.getHeight() - 20);
+		for(Splash spl : getSplashes()) if(spl.getPos().getY() == y) return;
+		getSplashes().add(new Splash(y, splashes[new Random().nextInt(splashes.length)], new Random().nextInt(30) + 20));
+	}
+
 	public synchronized CopyOnWriteArrayList<Splash> getSplashes()
 	{
 		return splash;
@@ -133,6 +156,11 @@ public class MainMenu extends GUI
 			int b = new Random().nextInt(215) + 40;
 			col = new Color(r, g, b);
 			pos = new Vector2f(Window.getWidth() + 2, y);
+		}
+		
+		public Vector2f getPos()
+		{
+			return pos;
 		}
 
 		public void update(float delta)

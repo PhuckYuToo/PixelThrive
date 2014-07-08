@@ -4,4 +4,14 @@
 <fullyQualifiedTypeName name="java.lang.Math"/>
 <fullyQualifiedTypeName name="com.base.engine.Util"/>
 <fullyQualifiedTypeName name="java.util.concurrent.CopyOnWriteArrayList"/>
+<fullyQualifiedTypeName name="com.base.pixelthrive.entities.Entity"/>
+<fullyQualifiedTypeName name="net.PixelThrive.Client.renders.Render"/>
+<fullyQualifiedTypeName name="com.base.pixelthrive.guis.Text"/>
+<fullyQualifiedTypeName name="com.base.engine.Window"/>
+<fullyQualifiedTypeName name="org.newdawn.easyogg.OggClip"/>
+<fullyQualifiedTypeName name="com.base.engine.CoreEngine"/>
+<fullyQualifiedTypeName name="com.base.engine.Texture"/>
+<fullyQualifiedTypeName name="com.base.engine.Render"/>
+<fullyQualifiedTypeName name="com.base.pixelthrive.World"/>
+<fullyQualifiedTypeName name="com.base.pixelthrive.blocks.Block"/>
 </qualifiedTypeNameHistroy>
