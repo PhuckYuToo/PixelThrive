@@ -13,17 +13,23 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.BufferUtils;
 
+import com.base.pixelthrive.Block;
+import com.base.pixelthrive.SpriteSheet;
+
 public class Texture 
 {
 	private static HashMap<String, TextureResource> loadedTextures = new HashMap<String, TextureResource>();
 	private TextureResource resource;
 	private String fileName;
 	private Vector2f size;
+	public int x, y;
 
 	public Texture(String path, Vector2f texCoord, Vector2f size)
 	{
 		this.size = size;
 		this.fileName = path;
+		this.x = texCoord.getXInt();
+		this.y = texCoord.getYInt();
 		TextureResource oldResource = loadedTextures.get(fileName);
 		if(oldResource != null)
 		{
@@ -35,6 +41,11 @@ public class Texture
 			resource = loadTexture(path, texCoord, size);
 			loadedTextures.put(fileName, resource);
 		}
+	}
+	
+	public Texture(SpriteSheet sheet, Vector2f texCoord)
+	{
+		this(sheet.getPath(), texCoord, new Vector2f(Block.SIZE, Block.SIZE));
 	}
 	
 	public Texture(String path, Vector2f texCoord, Vector2f size, boolean checkIfExists)

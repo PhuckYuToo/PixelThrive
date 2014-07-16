@@ -5,7 +5,6 @@ import static org.lwjgl.opengl.GL11.*;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
 
 @SuppressWarnings("deprecation")

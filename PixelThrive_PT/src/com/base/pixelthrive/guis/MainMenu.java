@@ -14,6 +14,7 @@ import com.base.engine.Vector2f;
 import com.base.engine.Window;
 import com.base.pixelthrive.GUI;
 import com.base.pixelthrive.PTGame;
+import com.base.pixelthrive.World;
 
 public class MainMenu extends GUI
 {
@@ -34,7 +35,7 @@ public class MainMenu extends GUI
 	private Color[][] pix = new Color[Window.getWidth() / 16 + 1][Window.getHeight() / 16 + 1];
 
 	private float titleScale = 0f, titleSpeed = 1f;
-	
+
 	private final String[] splashes = {"Now available in North Korea!", "Thanks to DarkKnight!", "Thanks to PhuckYuToo", 
 			"Thanks to Ca$h!", "OMG THIS GAME HAS SQUARES, MINECRAFT RIPOFF!", "GG!", 
 			"Powered by 9 volt batteries!", "ARMIIIIIN!!!", "Don't let the old man get to you!",
@@ -49,6 +50,8 @@ public class MainMenu extends GUI
 			"1v1 me rust get rekt son", "MIKASAAAA!!!", "Everyone is a world before they are a man!",
 			"Now gluten free!", "Diabeetus sucks", "Fat plumbers sold seperately!"};
 
+	private World world;
+	
 	public MainMenu()
 	{
 		singlePlayer.setText("Singleplayer", 26f, new Vector2f(2));
@@ -80,7 +83,7 @@ public class MainMenu extends GUI
 		{
 			titleSpeed -= 0.01f;
 			if(titleSpeed > 0f) titleScale = 1f - titleSpeed;
-			
+
 			for(Button button : mainMenuButtons) button.update(delta);
 			for(int i = 0; i < getSplashes().size(); i++)
 			{
@@ -96,6 +99,10 @@ public class MainMenu extends GUI
 
 			if(new Random().nextInt(100) == 0 && getSplashes().size() < 8) spawnSplash();
 		}
+		else
+		{
+			world.update(delta);
+		}
 	}
 
 	public void input(float delta)
@@ -104,6 +111,7 @@ public class MainMenu extends GUI
 		{
 			for(Button button : mainMenuButtons) button.input(delta);
 			if(exit.isClicked()) System.exit(0);
+			if(singlePlayer.isClicked()) initSP();
 			notAvailable.input(delta);
 		}
 	}
@@ -124,8 +132,12 @@ public class MainMenu extends GUI
 			if(multiPlayer.isHover() && !multiPlayer.isEnabled()) notAvailable.render();
 			Render.popMatrix();
 		}
+		else
+		{
+			world.render();
+		}
 	}
-	
+
 	private void spawnSplash()
 	{
 		int y = new Random().nextInt(Window.getHeight() - 20);
@@ -157,7 +169,7 @@ public class MainMenu extends GUI
 			col = new Color(r, g, b);
 			pos = new Vector2f(Window.getWidth() + 2, y);
 		}
-		
+
 		public Vector2f getPos()
 		{
 			return pos;
@@ -173,5 +185,11 @@ public class MainMenu extends GUI
 		{
 			Render.drawString(pos, splash, col, font, new Vector2f(2));
 		}
+	}
+	
+	private void initSP()
+	{
+		world = new World(this, new Vector2f(20, 20));
+		this.active = false;
 	}
 }
