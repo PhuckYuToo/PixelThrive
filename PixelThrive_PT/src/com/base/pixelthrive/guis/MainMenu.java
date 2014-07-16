@@ -12,6 +12,7 @@ import com.base.engine.Input;
 import com.base.engine.Render;
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
+import com.base.pixelthrive.Block;
 import com.base.pixelthrive.GUI;
 import com.base.pixelthrive.PTGame;
 import com.base.pixelthrive.World;
@@ -189,7 +190,7 @@ public class MainMenu extends GUI
 	
 	private void initSP()
 	{
-		world = new World(this, new Vector2f(20, 20));
+		world = new World(this, Window.getSize().div(Block.SIZE).add(1));
 		this.active = false;
 	}
 }

@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 
 import org.newdawn.slick.Color;
 
-import com.base.engine.CoreEngine;
 import com.base.engine.Render;
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
