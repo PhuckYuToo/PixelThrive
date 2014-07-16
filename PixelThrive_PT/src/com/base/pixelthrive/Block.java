@@ -1,19 +1,21 @@
 package com.base.pixelthrive;
 
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 
 import com.base.engine.CoreEngine;
-import com.base.engine.Render;
 import com.base.engine.Texture;
 import com.base.engine.Vector2f;
+import com.base.engine.Window;
 
 public class Block
 {
 	public static final int SIZE = 16;
+	public static final int SCALED_SIZE = (int) (SIZE / Tile.SCALE);
+	public static final Vector2f SCREEN_BLOCK = Window.getSize().div(Block.SIZE * Tile.SCALE).add(4, 2);
 
+	public static Texture[] textures = new Texture[4096];
 	public static int[] IDs = new int[4096];
 	public int blockID;
 
@@ -23,7 +25,7 @@ public class Block
 	public static ArrayList<Block> blocks = new ArrayList<Block>();
 	public static final Block air = new Block(0).setName("air");//.setUnbreakable().setTransparent(true).setFunctions(null).setMaterial(BlockMaterial.AIR);
 	public static final Block dirt = new GrassBlock(1, 1, false).setName("dirt");//.setResistance(20).setMaterial(BlockMaterial.GROUND).setTool(Item.shovel, 0).setQuantityDropped(1).setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Don't touch, it's dirty.");
-	//	public static final Block grass = new GrassBlock(2, 0, true).setWalkingSound("grass").setTurnable(false).setResistance(40).setMaterial(BlockMaterial.GROUND).setTool(Item.shovel, 0).setDrop(dirt.blockID).setQuantityDropped(1).setName("grass").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Creepy crawlers...");	
+	public static final Block grass = new GrassBlock(2, 0, true).setName("grass");//.setWalkingSound("grass").setTurnable(false).setResistance(40).setMaterial(BlockMaterial.GROUND).setTool(Item.shovel, 0).setDrop(dirt.blockID).setQuantityDropped(1).setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Creepy crawlers...");	
 	//	public static final Block stone = new Block(3, 2).setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setName("stone").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Pretty hard to mine without tools..");
 	//	public static final Block bedrock = new Block(4, 3).setUnbreakable().setMaterial(BlockMaterial.STONE).setName("bedrock").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Mine this. Challenge accepted?");
 	//	public static final Block basalt = new Block(5, 4).setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setName("basalt").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("No, not bathsalts.");
@@ -68,6 +70,15 @@ public class Block
 	//	public static final Block goldOre = new OreBlock(44, 200, 2).setTexture(43).setResistance(400).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 2).setName("gold Ore").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("This is true bling.");
 	//	public static final Block cobweb = new CobwebBlock(45).setTransparent(true).setCollidable(false).setSemiBlock(true).setName("cobweb").setTool(Item.sword, 0).setResistance(100).setHelpDescription("Sticky situation.").setCreativeTab(CreativeTabs.BUILDING).setTexture(44).setDrops(new CraftableStack[]{new CraftableStack(Item.string, 2)});
 
+	public static void initTextures()
+	{
+		for(int i = 1; i < 256; i++)
+		{
+			int y = i / SIZE;
+			textures[i] = new Texture(SpriteSheet.Terrain, new Vector2f(i - SIZE * y, y).mul(SIZE));
+		}
+	}
+
 	public Block(int id)
 	{
 		if(id < IDs.length)
@@ -100,15 +111,13 @@ public class Block
 
 	public Block setTexture(int id)
 	{
-		int y = id / SIZE;
-		this.texture = new Texture(SpriteSheet.Terrain, new Vector2f(id - SIZE * y, y));
-		return this;
+		return setTexture(id, SpriteSheet.Terrain);
 	}
 
 	public Block setTexture(int texture, SpriteSheet s)
 	{
 		int y = texture / SIZE;
-		this.texture = new Texture(s, new Vector2f(texture - SIZE * y, y));
+		this.texture = new Texture(s, new Vector2f(texture - SIZE * y, y).mul(SIZE));
 		return this;
 	}
 
@@ -116,13 +125,13 @@ public class Block
 	{
 		return texture;
 	}
-	
+
 	public Block setName(String name)
 	{
 		this.name = name;
 		return this;
 	}
-	
+
 	public String getName()
 	{
 		return name;
@@ -170,17 +179,11 @@ public class Block
 		{	
 			if(grassLeft == null) grassLeft = new boolean[world.worldW][world.worldH];
 			if(grassRight == null) grassRight = new boolean[world.worldW][world.worldH];
-			if(x >= 0 && y >= 0 && x < world.worldW && y < world.worldH)
+			if(world.insideWorld(x, y))
 			{
-				//				if(world.getBlock(x, y) == Block.dirt && world.canBlockSeeSky(x, y) && rand.nextInt(700) == 0 && world.isDay) world.setBlock(x, y, Block.grass.blockID);
-				//				for(int i = -1; i <= 1; i++)
-				//					for(int j = -1; j <= 1; j++)
-				//						if(world.getBlock(x, y) == Block.dirt && world.getBlock(x, y - 1) == Block.air && world.getBlock(x + i, y + j) == Block.grass && rand.nextInt(700) == 0 && world.isDay)
-				//							world.setBlock(x, y, Block.grass.blockID);
-				//				for(int i = -1; i <= 1; i++)
-				//					for(int j = -1; j <= 1; j++)
-				//						if(world.getBlock(x, y) == Block.grass && world.getBlock(x, y - 1) != Block.air && world.getBlock(x + i, y + j) != Block.grass && rand.nextInt(700) == 0)
-				//							world.setBlock(x, y, Block.dirt.blockID);
+				if(world.getBlock(x, y) == Block.dirt && world.canBlockSeeSky(x, y) && rand.nextInt(/*700*/1) == 0 && world.isDay) world.setBlock(x, y, Block.grass.blockID);
+				for(int i = -1; i <= 1; i++) for(int j = -1; j <= 1; j++) if(world.getBlock(x, y) == Block.dirt && world.getBlock(x, y - 1) == Block.air && world.getBlock(x + i, y + j) == Block.grass && rand.nextInt(700) == 0 && world.isDay) world.setBlock(x, y, Block.grass.blockID);
+				for(int i = -1; i <= 1; i++) for(int j = -1; j <= 1; j++) if(world.getBlock(x, y) == Block.grass && world.getBlock(x, y - 1) != Block.air && world.getBlock(x + i, y + j) != Block.grass && rand.nextInt(700) == 0) world.setBlock(x, y, Block.dirt.blockID);
 				//				try
 				//				{
 				//					if(world.getBlock(x, y) == Block.grass)

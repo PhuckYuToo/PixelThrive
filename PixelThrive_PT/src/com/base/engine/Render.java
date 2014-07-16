@@ -239,6 +239,7 @@ public class Render
 	
 	public static void drawScaledTexturedRectangle(Vector2f pos, Vector2f scale, Texture tex)
 	{
+		unBlur();
 		float x = pos.getX();
 		float y = pos.getY();
 		float width = scale.getX();

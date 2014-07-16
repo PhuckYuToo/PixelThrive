@@ -16,13 +16,17 @@ public class World
 
 	protected Tile[][] tiles;
 
+	protected Vector2f camera = new Vector2f(0);
+
+	public boolean isDay = true;
+
 	public World(MainMenu menu, Vector2f size)
 	{
 		this.menu = menu;
 		worldW = size.getXInt();
 		worldH = size.getYInt();
 		tiles = new Tile[worldW][worldH];
-		for(int x = 0; x < tiles.length; x++) for(int y = 0; y < tiles[0].length; y++) tiles[x][y] = new Tile(new Rectangle(x * Block.SIZE, y * Block.SIZE, Block.SIZE, Block.SIZE), Block.air.blockID);
+		for(int x = 0; x < tiles.length; x++) for(int y = 0; y < tiles[0].length; y++) tiles[x][y] = new Tile(new Rectangle(x * Block.SCALED_SIZE, y * Block.SCALED_SIZE, Block.SCALED_SIZE, Block.SCALED_SIZE), Block.air.blockID);
 		generate();
 	}
 
@@ -33,7 +37,11 @@ public class World
 
 	public Tile getTile(int x, int y)
 	{
-		return tiles[x][y];
+		try
+		{
+			return tiles[x][y];
+		}
+		catch(Exception e){return null;}
 	}
 
 	public void setTile(int x, int y, int id)
@@ -41,9 +49,43 @@ public class World
 		tiles[x][y].id = id;
 	}
 
+	public Block getBlock(int x, int y)
+	{
+		return getTile(x, y).getBlock();
+	}
+
+	public void setBlock(int x, int y, int id)
+	{
+		if(!insideWorld(x, y)) return;
+		tiles[x][y].id = id;
+	}
+
+	public boolean insideWorld(int x, int y)
+	{
+		return x >= 0 && y >= 0 && x < worldW && y < worldH;
+	}
+
+	public boolean canBlockSeeSky(int x, int y)
+	{
+		int block = 0;
+		for(int m = y - 1; m > 1; m--)
+		{
+			if(getBlock(x, m) == Block.air) block++;
+		}
+		if(block >= y - 2) return true;
+		return false;
+	}
+
 	public void update(float delta)
 	{
-		for(int x = 0; x < worldW; x++) for(int y = 0; y < worldH; y++) tiles[x][y].getBlock().blockTick(this, x, y);
+		for(int x = camera.getXInt(); x < Block.SCREEN_BLOCK.getX() + camera.getX() - 1; x++) for(int y = camera.getYInt(); y < Block.SCREEN_BLOCK.getY() + camera.getY() - 1; y++) 
+		{
+			try
+			{
+				tiles[x][y].getBlock().blockTick(this, x, y);
+			}
+			catch(Exception e){}
+		}
 	}
 
 	public void render()

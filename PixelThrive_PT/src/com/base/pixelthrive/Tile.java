@@ -8,11 +8,12 @@ import com.base.engine.Vector2f;
 public class Tile extends Rectangle
 {
 	private static final long serialVersionUID = 1L;
+	public static final float SCALE = 2.4f;
 	public int id = -1;
-
+	
 	public Tile(Rectangle size, int id)
 	{
-		setBounds(size);
+		setBounds((int)(size.x * SCALE), (int)(size.y * SCALE), size.width, size.height);
 		this.id = id;
 	}
 
@@ -20,7 +21,7 @@ public class Tile extends Rectangle
 	{
 		Render.pushMatrix();
 		Render.setTextures(true);
-		if(getBlock().getTexture() != null) Render.drawTexturedRectangle(new Vector2f(getBounds().x, getBounds().y), getBlock().getTexture());
+		if(Block.textures[id] != null) Render.drawScaledTexturedRectangle(new Vector2f(getBounds().x, getBounds().y), new Vector2f(SCALE), Block.textures[id]);
 		Render.setTextures(false);
 		Render.popMatrix();
 	}
