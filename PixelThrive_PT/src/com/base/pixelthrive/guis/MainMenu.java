@@ -15,7 +15,6 @@ import com.base.engine.Window;
 import com.base.pixelthrive.Block;
 import com.base.pixelthrive.GUI;
 import com.base.pixelthrive.PTGame;
-import com.base.pixelthrive.Tile;
 import com.base.pixelthrive.World;
 
 public class MainMenu extends GUI
@@ -56,7 +55,6 @@ public class MainMenu extends GUI
 	
 	public MainMenu()
 	{
-		Block.initTextures();
 		singlePlayer.setText("Singleplayer", 26f, new Vector2f(2));
 		multiPlayer.setText("Multiplayer", 26f, new Vector2f(2));
 		multiPlayer.setEnabled(false);

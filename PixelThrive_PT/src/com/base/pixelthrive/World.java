@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import org.newdawn.slick.Color;
 
 import com.base.engine.Render;
+import com.base.engine.Texture;
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
 import com.base.pixelthrive.guis.MainMenu;
@@ -19,9 +20,12 @@ public class World
 	protected Vector2f camera = new Vector2f(0);
 
 	public boolean isDay = true;
+	
+	Texture tex;
 
 	public World(MainMenu menu, Vector2f size)
 	{
+		tex = new Texture(SpriteSheet.Terrain, new Vector2f(50, 20));
 		this.menu = menu;
 		worldW = size.getXInt();
 		worldH = size.getYInt();
@@ -32,6 +36,8 @@ public class World
 
 	protected void generate()
 	{
+		//		for(int x = 0; x < worldW; x++) for(int y = 10; y < worldH; y++) setTile(x, y, Block.dirt.blockID);
+		for(int x = 0; x < worldW; x++) for(int y = worldH - 20; y < worldH; y++) setTile(x, y, Block.stone.blockID);
 		for(int x = 0; x < worldW; x++) for(int y = 10; y < worldH; y++) setTile(x, y, Block.dirt.blockID);
 	}
 
@@ -46,6 +52,7 @@ public class World
 
 	public void setTile(int x, int y, int id)
 	{
+		if(!insideWorld(x, y)) return;
 		tiles[x][y].id = id;
 	}
 

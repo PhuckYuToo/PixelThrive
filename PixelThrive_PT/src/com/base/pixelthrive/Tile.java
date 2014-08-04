@@ -19,9 +19,14 @@ public class Tile extends Rectangle
 
 	public void render()
 	{
+//		Render.pushMatrix();
+//		Render.setTextures(true);
+//		if(getBlock().getTexture() != null) Render.drawScaledTexturedRectangle(new Vector2f(getBounds().x, getBounds().y), new Vector2f(SCALE), getBlock().getTexture());
+//		Render.setTextures(false);
+//		Render.popMatrix();
 		Render.pushMatrix();
 		Render.setTextures(true);
-		if(Block.textures[id] != null) Render.drawScaledTexturedRectangle(new Vector2f(getBounds().x, getBounds().y), new Vector2f(SCALE), Block.textures[id]);
+		if(getBlock().getTexture() != null) getBlock().render(new Vector2f(getBounds().x, getBounds().y));
 		Render.setTextures(false);
 		Render.popMatrix();
 	}

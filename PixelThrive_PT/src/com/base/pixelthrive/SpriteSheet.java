@@ -1,6 +1,9 @@
 package com.base.pixelthrive;
 
-import java.awt.image.BufferedImage;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+
+import com.base.engine.Vector2f;
 
 public class SpriteSheet
 {
@@ -13,12 +16,19 @@ public class SpriteSheet
 	public static final SpriteSheet GUI = new SpriteSheet("Gui.png");
 	public static final SpriteSheet Skill = new SpriteSheet("Skills.png");
 	
-	private LoadedImage img;
+	private Image img;
 	private String path;
 	
 	public SpriteSheet(String path)
 	{
-		img = new LoadedImage(path);
+		try
+		{
+			img = new Image(path);
+		}
+		catch(SlickException e)
+		{
+			
+		}
 		this.path = path;
 	}
 	
@@ -27,28 +37,13 @@ public class SpriteSheet
 		return path;
 	}
 	
-	public BufferedImage getImage()
+	public Image getImage()
 	{
-		return img.getImage();
+		return img;
 	}
 	
-	public static BufferedImage getIcon(SpriteSheet sheet, int x, int y)
+	public Image getSprite(int x, int y, Vector2f size)
 	{
-		return sheet.getImage().getSubimage(x * Block.SIZE, y * Block.SIZE, Block.SIZE, Block.SIZE);
-	}
-	
-	public BufferedImage getIconImage(int x, int y)
-	{
-		return getImage().getSubimage(x, y, Block.SIZE, Block.SIZE);
-	}
-	
-	public BufferedImage getIconImage(int x, int y, int width, int height)
-	{
-		return getImage().getSubimage(x, y, width, height);
-	}
-	
-	public static BufferedImage getIcon(SpriteSheet sheet, int x, int y, int width, int height)
-	{
-		return sheet.getImage().getSubimage(x * Block.SIZE, y * Block.SIZE, width, height);
+		return img.getSubImage(x, y, size.getXInt(), size.getYInt());
 	}
 }

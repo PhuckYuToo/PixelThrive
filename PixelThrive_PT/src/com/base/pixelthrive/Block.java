@@ -1,11 +1,12 @@
 package com.base.pixelthrive;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 
-import com.base.engine.CoreEngine;
-import com.base.engine.Texture;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.SlickException;
+
 import com.base.engine.Vector2f;
 import com.base.engine.Window;
 
@@ -15,18 +16,18 @@ public class Block
 	public static final int SCALED_SIZE = (int) (SIZE / Tile.SCALE);
 	public static final Vector2f SCREEN_BLOCK = Window.getSize().div(Block.SIZE * Tile.SCALE).add(4, 2);
 
-	public static Texture[] textures = new Texture[4096];
 	public static int[] IDs = new int[4096];
 	public int blockID;
 
-	protected Texture texture;
+	protected Image texture;
+	protected Graphics g;
 	protected String name;
 
 	public static ArrayList<Block> blocks = new ArrayList<Block>();
 	public static final Block air = new Block(0).setName("air");//.setUnbreakable().setTransparent(true).setFunctions(null).setMaterial(BlockMaterial.AIR);
 	public static final Block dirt = new GrassBlock(1, 1, false).setName("dirt");//.setResistance(20).setMaterial(BlockMaterial.GROUND).setTool(Item.shovel, 0).setQuantityDropped(1).setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Don't touch, it's dirty.");
 	public static final Block grass = new GrassBlock(2, 0, true).setName("grass");//.setWalkingSound("grass").setTurnable(false).setResistance(40).setMaterial(BlockMaterial.GROUND).setTool(Item.shovel, 0).setDrop(dirt.blockID).setQuantityDropped(1).setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Creepy crawlers...");	
-	//	public static final Block stone = new Block(3, 2).setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setName("stone").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Pretty hard to mine without tools..");
+	public static final Block stone = new Block(3, 2).setName("stone");//.setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Pretty hard to mine without tools..");
 	//	public static final Block bedrock = new Block(4, 3).setUnbreakable().setMaterial(BlockMaterial.STONE).setName("bedrock").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Mine this. Challenge accepted?");
 	//	public static final Block basalt = new Block(5, 4).setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setName("basalt").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("No, not bathsalts.");
 	//	public static final Block lavaStone = new Block(6, 5).setResistance(200).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 0).setName("lavastone").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("Is it hot here or is it me?");
@@ -70,15 +71,6 @@ public class Block
 	//	public static final Block goldOre = new OreBlock(44, 200, 2).setTexture(43).setResistance(400).setMaterial(BlockMaterial.STONE).setTool(Item.pickaxe, 2).setName("gold Ore").setCreativeTab(CreativeTabs.BUILDING).setHelpDescription("This is true bling.");
 	//	public static final Block cobweb = new CobwebBlock(45).setTransparent(true).setCollidable(false).setSemiBlock(true).setName("cobweb").setTool(Item.sword, 0).setResistance(100).setHelpDescription("Sticky situation.").setCreativeTab(CreativeTabs.BUILDING).setTexture(44).setDrops(new CraftableStack[]{new CraftableStack(Item.string, 2)});
 
-	public static void initTextures()
-	{
-		for(int i = 1; i < 256; i++)
-		{
-			int y = i / SIZE;
-			textures[i] = new Texture(SpriteSheet.Terrain, new Vector2f(i - SIZE * y, y).mul(SIZE));
-		}
-	}
-
 	public Block(int id)
 	{
 		if(id < IDs.length)
@@ -117,11 +109,20 @@ public class Block
 	public Block setTexture(int texture, SpriteSheet s)
 	{
 		int y = texture / SIZE;
-		this.texture = new Texture(s, new Vector2f(texture - SIZE * y, y).mul(SIZE));
+		//this.texture = new Texture(s, new Vector2f(texture - SIZE * y, y).mul(SIZE));
+		try
+		{
+			this.texture = s.getSprite(texture - SIZE * y, y, new Vector2f(SIZE, SIZE));
+			this.g = this.texture.getGraphics();
+		} 
+		catch (SlickException e)
+		{
+			e.printStackTrace();
+		}
 		return this;
 	}
 
-	public Texture getTexture()
+	public Image getTexture()
 	{
 		return texture;
 	}
@@ -137,16 +138,11 @@ public class Block
 		return name;
 	}
 
-	public int[] getSheetCoordinates()
-	{
-		return new int[]{getTexture().x, getTexture().y};
-	}
-
 	public static class GrassBlock extends Block
 	{
 		protected boolean canSpread;
 		Random rand = new Random();
-		private BufferedImage img = SpriteSheet.Terrain.getImage();
+		private Image img = SpriteSheet.Terrain.getImage();
 		public boolean[][] grassLeft, grassRight;
 
 		public GrassBlock(int id)
@@ -197,5 +193,11 @@ public class Block
 				//				catch(Exception e){}
 			}
 		}
+	}
+
+	public void render(Vector2f pos) 
+	{
+		g.flush();
+		texture.draw(pos.getXInt(), pos.getYInt(), SIZE, SIZE);
 	}
 }
